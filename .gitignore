@@ -1,0 +1,20 @@
+# 依赖
+node_modules/
+
+# 本地数据库（用 `node server/seed.js` 重建）
+server/data.db
+server/data.db-wal
+server/data.db-shm
+*.db
+*.db-wal
+*.db-shm
+
+# 用户上传的图片
+server/uploads/
+
+# Office 临时锁定文件
+~$*
+
+# 系统文件
+Thumbs.db
+.DS_Store

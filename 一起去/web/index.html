@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一起去 · 找到同行的人，去同一个漫展</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </span>
+        <div class="brand-text">
+          <span class="brand-name">一起去</span>
+          <span class="brand-sub">漫展同行组团</span>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav"></nav>
+
+      <div class="sidebar-foot">
+        <button class="user-card" data-view="profile">
+          <span class="avatar avatar-grad">汐</span>
+          <span class="user-meta">
+            <span class="user-name">赵绪辉</span>
+            <span class="user-tag">Lv.3 · 同行达人</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar" id="topbar"></header>
+      <section class="view" id="view"></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
