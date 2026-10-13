@@ -12,6 +12,8 @@
     <nav class="tabs">
       <button class="tab active" data-tab="expos">漫展管理</button>
       <button class="tab" data-tab="teams">队伍管理</button>
+      <button class="tab" data-tab="review">审核中心</button>
+      <button class="tab" data-tab="reports">举报处理</button>
     </nav>
   </header>
 
@@ -26,6 +28,7 @@
       <select id="filter-expo"><option value="">全部漫展</option></select>
       <input id="filter-search" type="text" placeholder="搜索队伍名称 / 领队 / 出发地" />
     </div>
+    <div class="filterbar" id="reviewbar" hidden></div>
     <div class="table-wrap">
       <table id="table">
         <thead></thead>

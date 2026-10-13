@@ -96,6 +96,8 @@ main {
 
 .btn.danger { color: #e11d48; }
 .btn.danger:hover { background: #fff0f3; border-color: #fecdd3; }
+.btn.success { color: #0f766e; }
+.btn.success:hover { background: #e6f7f5; border-color: #b7e4dc; }
 .btn.small { padding: 4px 9px; font-size: 12.5px; }
 
 .filterbar {
@@ -263,6 +265,103 @@ tbody tr:hover td { background: #fafbfc; }
 }
 
 .cover-preview.show { display: block; }
+
+.cover-thumb {
+  display: inline-block;
+  width: 64px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #e7e9ee;
+  background: linear-gradient(120deg, #ff5f7a, #f43f5e);
+}
+
+.cover-thumb.has-img {
+  background-size: cover;
+  background-position: center;
+}
+
+.team-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: #f5f6f9;
+  border: 1px solid #e7e9ee;
+  overflow: hidden;
+  font-size: 20px;
+}
+
+.team-icon.emoji {
+  background: #fff6e5;
+  border-color: #ffe2ac;
+}
+
+.team-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #eef0f4;
+  color: #5b6070;
+  white-space: nowrap;
+}
+
+.pill.pending { background: #fff6e5; color: #b45309; }
+.pill.approved { background: #e6f7f5; color: #0f766e; }
+.pill.rejected { background: #fff0f3; color: #e11d48; }
+
+.review-tabs {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.review-sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: #e7e9ee;
+}
+
+.review-tab {
+  border: 1px solid #d9dce3;
+  background: #fff;
+  color: #5b6070;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.review-tab.active {
+  background: #fff0f3;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+.avatar-thumb {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e7e9ee;
+  background: #f5f6f9;
+}
+
+.avatar-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .form-actions {
   grid-column: 1 / -1;

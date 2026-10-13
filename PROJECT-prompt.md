@@ -123,8 +123,111 @@
 
 - 任务：把项目上传到 GitHub（`13588342376/-`）。
 - 完成内容：`git init` + 新增 `.gitignore` + 首次提交（13 个文件，含 PPT/docx），`data.db`、`uploads/`、Office 临时文件已忽略。
-- 未完成：推送到 GitHub 未成功——本机解析不到 `github.com`（`Could not resolve hostname github.com`），即使提权也如此，说明当前环境无外网。
-- 环境笔记：此环境无法联网到 GitHub，推送需用户在本机终端自行执行；`gh` 未登录。
+- 后续结果：最终推送到 `13588342376/yiqiqu` 成功（仓库名原中文失败，改用 `yiqiqu`）。网络问题源于终端未走代理：给 git 配了 Clash 的 HTTP 代理（`http://127.0.0.1:7890`）并把远端改成 HTTPS 后，用 `git push -f -u origin main` 成功（远端原有自动生成的 README 提交，历史不相关，故 `-f` 覆盖）。
+- 环境笔记：SSH 走 Clash 的 `ProxyCommand` 在 Windows 上有 `exec` 报错坑，改用 HTTPS + `http.proxy` 更稳；`gh` 未登录，但 Git Credential Manager 已缓存凭据，故推送无需手动输密码。
+
+### 2026-10-13 会话（账户系统 + 等级 + 头像 + 待办持久化 + 数据扩充）
+
+- 任务：把本地做成“功能齐全、可直接部署”的状态——账户/注册/登录、等级、头像上传、密码哈希、待办持久化、左下角重做，并充实种子数据。
+- 涉及文件：
+  - 修改 `一起去/server/db.js`（新增 `users`、`sessions`、`todos` 表；`user_state` 改为按用户存；新增认证/待办/经验函数）
+  - 修改 `一起去/server/server.js`（cookie 会话、`/api/auth/*`、`/api/todos`、`/api/state` 按用户、创建队伍关联用户并加经验、启动自动灌数据）
+  - 重写 `一起去/server/seed.js`（10 场漫展 + 20 支队伍；`seedIfEmpty`/`seedAll` 可复用；演示账号 demo/123456）
+  - 修改 `一起去/web/index.html`（左下角改为动态容器）
+  - 修改 `一起去/web/js/main.js`（登录/注册/编辑资料/换头像/待办勾选、登录态渲染、加载与错误兜底、动态时间筛选）
+  - 修改 `一起去/web/css/style.css`（用户菜单、等级、头像、待办等样式）
+- 完成内容：
+  1. 账户系统：注册/登录/登出，密码 `crypto.scrypt` 加盐哈希，session token + cookie 持久会话。
+  2. 等级系统：注册 Lv.1，创建队伍 +30 经验、升级按 `floor(exp/100)+1`；个人中心展示等级与经验条。
+  3. 头像自定义：复用 `/api/upload`，头像链接存 `users.avatar_url`，左下角与个人中心统一显示。
+  4. 左下角改为“当前用户卡 + 等级 + 下拉菜单（个人中心/我的队伍/退出）”，与个人中心不再重复；未登录显示“登录/注册”。
+  5. 待办：`todos` 表 + 勾选/取消/添加/删除接口，刷新不丢。
+  6. 登录策略：游客可浏览，收藏/申请/创建队伍/待办/个人中心/我的队伍需登录，未登录弹登录框。
+  7. 数据扩充：10 场漫展 + 20 支队伍，日期按当前日期往后分布；`server.js` 启动时库为空自动灌数据。
+  8. 前端补加载失败兜底、动态“近一个月/近三个月”筛选、“我的收藏”过滤视图。
+- 验证：
+  - `node --check` 全绿；`node server/seed.js` 重建成功。
+  - 端到端（PowerShell + cookie 会话）：注册、登录、`/api/auth/me`、待办增/勾选、state 按用户读写、创建队伍（leader=用户昵称、经验 +30）全部通过。
+  - 演示账号 demo/123456：Lv.3、exp 250、3 条待办、收藏 2 场、加入 1 队，均读取正常。
+- 失误复盘：
+  - `renderSidebarUser` 的菜单模板串里，`data-action="go-profile"` 的双引号与拼接的双引号混在一起，导致 `Unexpected identifier`；改成“单引号字符串 + 拼接、标签属性用双引号”后通过 `node --check`。
+  - 登录/注册/创建队伍等异步提交最初没有 try/catch，失败会静默；已逐个补 `toast(e.message)`。
+- 环境笔记：无头 Edge 在本沙箱始终访问不了 localhost，浏览器端无法截图；验证以接口端到端 + 语法检查为主，视觉以用户打开 `http://localhost:3000` 为准。
+
+### 2026-10-13 会话（新增双击启动/停止脚本）
+
+- 任务：为本地运行方便，新增两个双击脚本，避免每次手动敲命令。
+- 涉及文件：
+  - 新增 `启动服务器.bat`
+  - 新增 `停止服务器.bat`
+- 完成内容：
+  - `启动服务器.bat`：双击后自动 `cd` 到 `一起去` 并运行 `node server\server.js`，窗口关闭即停止。
+  - `停止服务器.bat`：通过 `netstat + taskkill` 杀掉监听 3000 端口的进程，用于强制停止后台运行的服务。
+- 环境笔记：
+  - 两个脚本放在项目根目录，双击即可用；脚本内用 `chcp 65001` 保证中文正常显示。
+  - 若服务器不是从窗口启动（后台进程），用 `停止服务器.bat` 收尾；正式部署后会用 `pm2` 常驻，本地仍可用这两个脚本。
+
+### 2026-10-13 会话（修复启动/停止脚本）
+
+- 任务：`启动服务器.bat` / `停止服务器.bat` 双击无法正常使用，定位并修复。
+- 涉及文件：
+  - 修改 `启动服务器.bat`（补 node 路径检测）
+  - 修改 `停止服务器.bat`（改用 PowerShell 定位并结束进程）
+- 根因：
+  1. `node` 只存在于 Codex 运行环境的 PATH，不在 Windows 系统 PATH，双击 bat（普通 cmd）找不到 `node`。
+  2. bat 文件此前是 UTF-8 + LF 行尾，`cmd` 需要 CRLF；且 `chcp 65001` 后中文必须为 UTF-8 字节，不能转 GBK。
+  3. `taskkill` 对后台启动的 node 报 `Access denied`，改用 `Stop-Process` 可靠。
+- 修复：
+  - 启动脚本：`where node` 优先，找不到则回退到 Codex runtime 的 node 绝对路径；文件统一为 UTF-8 + CRLF。
+  - 停止脚本：PowerShell 解析 `netstat` 取 PID 并 `Stop-Process`，bat 负责中文提示。
+- 验证：启动脚本拉起服务后端口 3000 LISTENING、`/api/expos` 返回 10；停止脚本运行后端口 3000 清空、无 stderr 错误。
+- 环境笔记：bat 文件必须 UTF-8 + CRLF；`%~dp0` 展开中文路径正常；杀进程优先 `Stop-Process`。
+
+### 2026-10-13 会话（审核/举报/图片规范/前端交互强化）
+
+- 任务：补齐队伍审核与举报闭环、规范化图片存储、并修复一批前端交互问题。
+- 涉及文件：
+  - 修改 `一起去/server/db.js`（`teams` 加 `leader_user_id/icon/icon_kind/status`；新增 `team_requests`、`reports` 表与相关函数）
+  - 修改 `一起去/server/server.js`（上传按分类落盘；`/api/teams` 公开/我的/后台三种返回；申请/审核/举报接口）
+  - 修改 `一起去/server/seed.js`（种子队伍带 emoji 图标、`approved` 状态；重建前清理申请与举报）
+  - 修改 `一起去/admin/index.html`、`admin/admin.css`、`admin/admin.js`（新增“审核中心”“举报处理”页签）
+  - 修改 `一起去/web/js/main.js`、`web/css/style.css`（城市下拉、搜索、banner 轮播、emoji 图标、行程联动、时间轴强化、我的收藏视图、举报、可点击统计卡）
+- 完成内容：
+  1. 图片规范：上传目录分为 `covers / team-icons / avatars / banners / icons / backgrounds` 六个分类，`/api/upload` 带 `category` 落盘。
+  2. 队伍审核：创建默认 `pending`，管理员审核通过后才在公开列表展示；创建者在“我的队伍”可见“审核中”状态。
+  3. 队伍图标：默认 emoji 选择器；Lv.3 起可上传自定义图标，自定义图标走人工审核。
+  4. 举报：队伍详情新增“举报”按钮，提交到后台“举报处理”分区，管理员可标记已处理/忽略。
+  5. 领队确认：`team_requests` 记录申请，领队在队伍详情通过/拒绝；通过后入队、`size+1`、申请者 +10 经验。
+  6. 前端修复：城市筛选改下拉、搜索扩展字段、首页 banner 自动+手动轮播、行程按已加入队伍实时生成、时间轴节点对齐并加黄色脉冲“当前节点”、个人中心三个统计卡可点击、新增独立“我的收藏”视图。
+- 验证：
+  - `node --check` 全绿；`node server/seed.js` 重建成功。
+  - PowerShell 端到端验证：创建队伍 `pending` → 领队 `mine` 可见 → 成员申请 → 领队通过 → 成员 `joined` +10 经验、队伍 `size=2`；Lv.1 上传自定义图标返回 403；举报创建/标记已处理可用。
+  - 清理了本轮验证产生的测试账号、队伍与举报记录。
+- 失误复盘：
+  - `server.js` 的队伍子路由顺序错误：`POST /api/teams/:id/requests` 被通用 `POST /api/teams` 创建队伍分支先匹配，导致报“SQLite 参数 2 无法绑定”；已把子资源分支条件改为 `!parts[2]` 区分，避免创建/详情/子资源互相抢路由。
+  - 管理后台最初复用 `filterbar` 渲染审核分区，会销毁队伍筛选的 `filter-expo` 元素；改为独立 `reviewbar`。
+  - 首页 banner 轮播只改了 `state.bannerIndex` 却没同步 `translateX`，手动切换会失效；已在渲染时写入 transform。
+- 环境笔记：
+  - `node:sqlite` 的“无法绑定参数 2”多数是传了 `undefined`，先查路由是否被前一个条件短路。
+  - `teams` 删除前需先删 `team_requests`/`reports`，否则外键约束失败。
+  - 本轮测试账号已清理；`uploads/` 根目录还留有一个旧的未引用图片 `1791883783622-hp5cso.png`，可按分类移动到对应子目录或删除。
+
+### 2026-10-13 会话（头像审核 + 收藏入口去重）
+
+- 任务：修复个人中心“我的收藏”与“收藏的漫展”入口重复，并把头像上传改为人工审核。
+- 涉及文件：
+  - 修改 `一起去/server/db.js`（新增 `avatar_requests` 表与头像审核函数）
+  - 修改 `一起去/server/server.js`（新增 `/api/avatar-requests` 的 GET/POST/PATCH）
+  - 修改 `一起去/admin/admin.js`、`admin/admin.css`（审核中心增加“头像审核”分区）
+  - 修改 `一起去/web/js/main.js`（头像上传改为提交审核；删除底部“我的收藏”重复入口）
+- 完成内容：
+  1. 头像上传后不再直接写入 `users.avatar_url`，而是生成 `pending` 审核记录；后台通过后头像才生效。
+  2. 审核中心从单一“队伍审核”扩展为“队伍审核 / 头像审核”两个分区，各自带待审核/已通过/已驳回状态筛选。
+  3. 个人中心底部“我的收藏”入口删除，保留顶部“收藏的漫展”统计卡，避免同一收藏视图出现两个入口。
+  4. 把此前未走审核的历史头像（用户 `1`）补入头像审核队列，便于在后台演示审核流程。
+- 验证：`node --check` 全绿；端到端验证头像提交 → 后台通过 → `avatarUrl` 生效；临时测试账号已清理。
+- 环境笔记：头像审核文件仍落在 `uploads/avatars/`，审核记录存 `avatar_requests`，通过后回写 `users.avatar_url`。
+- 补充修复：`/admin` 不带斜杠时，页面里相对的 `admin.css/admin.js` 会解析成 `/admin.css` 导致 404，后台空白无样式；已在 `serveStatic` 中把 `/admin` 301 跳转到 `/admin/`。
 
 ## 待办事项
 
@@ -132,10 +235,19 @@
 - [x] 写 `server/server.js`：HTTP 服务 + REST API + 托管 web 静态文件
 - [x] 做管理后台 `admin/`（漫展增删改查 + 封面上传；队伍审核：筛选/搜索/删除）
 - [x] 前端 `main.js` 改为 `fetch` 拉取 API，去掉写死的 mock 数据
+- [x] 数据扩充到 10 场漫展 + 20 支队伍（种子 + 启动自动灌数据）
+- [x] 账户系统（注册/登录/登出，scrypt 加盐哈希 + cookie 会话）
+- [x] 等级系统（创建/加入队伍加经验，个人中心展示等级进度）
+- [x] 头像自定义上传
+- [x] 待办持久化（勾选/取消/添加/删除）
 - [ ] 把种子数据的日期/场馆/购票链接换成真实核实信息
 - [ ] 封面图补充真实漫展素材（上传能力已就绪）
 - [ ] 数据生命周期（第二批）：漫展 `status` + 定时任务 + 2 个月留存清理 + “已结束”历史入口
 - [ ] 移动端跨平台框架最终选型（React Native / Flutter）
-- [ ] 用户系统（多用户、注册登录）
 - [ ] 管理后台加简单密码/登录（上线前）
+- [x] 加入队伍的“领队确认”机制（申请记录、领队通过/拒绝、入队加经验并更新人数）
+- [x] 上传目录规范管理（covers / team-icons / avatars / banners / icons / backgrounds）
+- [x] 管理后台“审核中心”（待审核/已通过/已驳回分区，内容+图标审核）与“举报处理”分区
+- [x] 队伍 emoji 图标选择 + Lv.3 起可上传自定义图标（自定义图标需人工审核）
+- [x] 前端：城市下拉筛选、搜索修复、首页 banner 轮播、行程实时联动+时间轴强化、个人中心入口可点击、独立“我的收藏”视图
 - [ ] 两人分工细化（暂缓）
