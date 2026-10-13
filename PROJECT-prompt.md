@@ -119,6 +119,13 @@
   - 验证脚本里再次踩了 PowerShell 的 `$HOME` 只读变量与字符串 `+` 拼接的坑，已规避。
 - 环境笔记：停后台 node 用 `Get-Process -Name node` 找 PID 再 `Stop-Process -Force`；`Get-NetTCPConnection` 权限不足不可靠。
 
+### 2026-10-13 会话（git 初始化 + 本地提交，推送受阻）
+
+- 任务：把项目上传到 GitHub（`13588342376/-`）。
+- 完成内容：`git init` + 新增 `.gitignore` + 首次提交（13 个文件，含 PPT/docx），`data.db`、`uploads/`、Office 临时文件已忽略。
+- 未完成：推送到 GitHub 未成功——本机解析不到 `github.com`（`Could not resolve hostname github.com`），即使提权也如此，说明当前环境无外网。
+- 环境笔记：此环境无法联网到 GitHub，推送需用户在本机终端自行执行；`gh` 未登录。
+
 ## 待办事项
 
 - [x] 搭建 SQLite 数据库层（node:sqlite）并写入种子数据
